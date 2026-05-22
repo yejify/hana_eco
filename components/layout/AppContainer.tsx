@@ -8,13 +8,17 @@ type AppContainerProps = {
 
 export default function AppContainer({ children }: AppContainerProps) {
   return (
-    <div className='app-container'>
+    <div className='min-h-screen bg-[#f5f6f8]'>
       <Header />
-      <div className='app-body'>
+
+      <div className='flex min-h-[calc(100vh-72px)]'>
         <Sidebar />
-        <main className='app-main'>{children}</main>
+
+        <div className='flex flex-1 flex-col'>
+          <main className='flex-1 p-6'>{children}</main>
+          <Footer />
+        </div>
       </div>
-      <Footer />
     </div>
   );
 }
