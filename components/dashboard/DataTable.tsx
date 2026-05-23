@@ -3,9 +3,13 @@ import { ActivityData } from '@/types/activity';
 
 type DataTableProps = {
   activities: ActivityData[];
+  deleteActivity: (id: number) => void;
 };
 
-export default function DataTable({ activities }: DataTableProps) {
+export default function DataTable({
+  activities,
+  deleteActivity,
+}: DataTableProps) {
   return (
     <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
       <div className='mb-5 flex items-center justify-between'>
@@ -26,6 +30,7 @@ export default function DataTable({ activities }: DataTableProps) {
               <th className='px-4 py-3 text-right font-semibold'>활동량</th>
               <th className='px-4 py-3 text-left font-semibold'>단위</th>
               <th className='px-4 py-3 text-right font-semibold'>배출량</th>
+              <th className='px-4 py-3 text-center font-semibold'>관리</th>
             </tr>
           </thead>
 
@@ -42,6 +47,15 @@ export default function DataTable({ activities }: DataTableProps) {
                 <td className='px-4 py-4 text-gray-600'>{item.unit}</td>
                 <td className='px-4 py-4 text-right font-semibold text-blue-600'>
                   {item.emission.toLocaleString()} kgCO₂eq
+                </td>
+                <td className='px-4 py-4 text-center'>
+                  <button
+                    type='button'
+                    onClick={() => deleteActivity(item.id)}
+                    className='rounded-md border border-red-200 px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-50'
+                  >
+                    삭제
+                  </button>
                 </td>
               </tr>
             ))}
