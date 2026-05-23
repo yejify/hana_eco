@@ -1,6 +1,11 @@
 import { mockActivityData } from '@/data/mockActivityData';
+import { ActivityData } from '@/types/activity';
 
-export default function DataTable() {
+type DataTableProps = {
+  activities: ActivityData[];
+};
+
+export default function DataTable({ activities }: DataTableProps) {
   return (
     <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
       <div className='mb-5 flex items-center justify-between'>
@@ -25,7 +30,7 @@ export default function DataTable() {
           </thead>
 
           <tbody className='divide-y divide-gray-100'>
-            {mockActivityData.map((item) => (
+            {activities.map((item) => (
               <tr key={item.id} className='hover:bg-gray-50'>
                 <td className='px-4 py-4 font-medium text-gray-800'>
                   {item.productName}
