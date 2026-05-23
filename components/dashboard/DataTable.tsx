@@ -4,11 +4,13 @@ import { ActivityData } from '@/types/activity';
 type DataTableProps = {
   activities: ActivityData[];
   deleteActivity: (id: number) => void;
+  setEditingActivity: (activity: ActivityData) => void;
 };
 
 export default function DataTable({
   activities,
   deleteActivity,
+  setEditingActivity,
 }: DataTableProps) {
   return (
     <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
@@ -49,6 +51,13 @@ export default function DataTable({
                   {item.emission.toLocaleString()} kgCO₂eq
                 </td>
                 <td className='px-4 py-4 text-center'>
+                  <button
+                    type='button'
+                    onClick={() => setEditingActivity(item)}
+                    className='mr-2 rounded-md border border-blue-200 px-3 py-1 text-xs font-medium text-blue-500 hover:bg-blue-50'
+                  >
+                    수정
+                  </button>
                   <button
                     type='button'
                     onClick={() => deleteActivity(item.id)}

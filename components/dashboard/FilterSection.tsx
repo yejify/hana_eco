@@ -2,10 +2,12 @@
 
 import { ActivityData, ActivityType } from '@/types/activity';
 import { calculateEmission } from '@/utils/calculateEmission';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type FilterSectionProps = {
   addActivity: (activity: ActivityData) => void;
+  updateActivity: (activity: ActivityData) => void;
+  editingActivity: ActivityData | null;
 };
 
 const UNIT_MAP: Record<ActivityType, string> = {
@@ -15,10 +17,22 @@ const UNIT_MAP: Record<ActivityType, string> = {
   waste: 'ton',
 };
 
-export default function FilterSection({ addActivity }: FilterSectionProps) {
+export default function FilterSection({
+  addActivity,
+  updateActivity,
+  editingActivity,
+}: FilterSectionProps) {
   const [productName, setProductName] = useState('');
   const [activityType, setActivityType] = useState<ActivityType>('electricity');
   const [amount, setAmount] = useState('');
+
+  useEffect(() => {
+    if (editingActivity) {
+      setProductName(editingActivity.productName);
+      setActivityType(editingActivity.activityType);
+      setAmount(String(editingActivity.amount));
+    }
+  }, [editingActivity]);
 
   const handleSubmit = () => {
     if (!productName || !amount) {
@@ -37,7 +51,20 @@ export default function FilterSection({ addActivity }: FilterSectionProps) {
       emission: calculateEmission(activityType, numericAmount),
     };
 
-    addActivity(newActivity);
+    const activityData: ActivityData = {
+      id: editingActivity ? editingActivity.id : Date.now(),
+      productName,
+      activityType,
+      amount: numericAmount,
+      unit: UNIT_MAP[activityType],
+      emission: calculateEmission(activityType, numericAmount),
+    };
+
+    if (editingActivity) {
+      updateActivity(activityData);
+    } else {
+      addActivity(activityData);
+    }
 
     setProductName('');
     setAmount('');
@@ -58,7 +85,7 @@ export default function FilterSection({ addActivity }: FilterSectionProps) {
           onClick={handleSubmit}
           className='rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700'
         >
-          데이터 추가
+          {editingActivity ? '수정 완료' : '데이터 추가'}
         </button>
       </div>
 
