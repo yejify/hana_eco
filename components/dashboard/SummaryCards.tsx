@@ -1,14 +1,17 @@
-import { mockActivityData } from '@/data/mockActivityData';
+import { ActivityData } from '@/types/activity';
 
-export default function SummaryCards() {
-  const totalEmission = mockActivityData.reduce(
-    (acc, cur) => acc + cur.emission,
-    0,
-  );
+type SummaryCardsProps = {
+  activities: ActivityData[];
+};
 
-  const totalProducts = mockActivityData.length;
+export default function SummaryCards({ activities }: SummaryCardsProps) {
+  const totalEmission = activities.reduce((acc, cur) => acc + cur.emission, 0);
 
-  const totalRecords = mockActivityData.length;
+  const totalProducts = new Set(
+    activities.map((activity) => activity.productName),
+  ).size;
+
+  const totalRecords = activities.length;
 
   return (
     <section className='grid grid-cols-3 gap-6'>
