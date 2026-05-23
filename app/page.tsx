@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import AppContainer from '@/components/layout/AppContainer';
 import PageHeader from '@/components/dashboard/PageHeader';
@@ -11,12 +11,26 @@ import DataTable from '@/components/dashboard/DataTable';
 import { mockActivityData } from '@/data/mockActivityData';
 import { ActivityData } from '@/types/activity';
 
+const STORAGE_KEY = 'hana-eco-activities';
+
 export default function Home() {
-  const [activities, setActivities] =
-    useState<ActivityData[]>(mockActivityData);
+  const [activities, setActivities] = useState<ActivityData[]>([]);
   const [editingActivity, setEditingActivity] = useState<ActivityData | null>(
     null,
   );
+
+  useEffect(() => {
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+      setActivities(JSON.parse(storedData));
+    } else {
+      setActivities(mockActivityData);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(activities));
+  }, [activities]);
 
   const addActivity = (activity: ActivityData) => {
     setActivities((prev) => [...prev, activity]);
