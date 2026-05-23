@@ -19,6 +19,10 @@ export default function Home() {
     setActivities((prev) => [...prev, activity]);
   };
 
+  const deleteActivity = (id: number) => {
+    setActivities((prev) => prev.filter((item) => item.id !== id));
+  };
+
   return (
     <AppContainer>
       <div className='flex flex-col gap-6'>
@@ -26,7 +30,7 @@ export default function Home() {
         <SummaryCards activities={activities} />
         <FilterSection addActivity={addActivity} />
         <EmissionChart activities={activities} />
-        <DataTable activities={activities} />
+        <DataTable activities={activities} deleteActivity={deleteActivity} />
       </div>
     </AppContainer>
   );
