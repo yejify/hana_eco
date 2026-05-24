@@ -47,6 +47,10 @@ export function useActivities() {
     setActivities((prev) => prev.filter((activity) => activity.id !== id));
   };
 
+  const importActivities = (newActivities: ActivityData[]) => {
+    setActivities((prev) => [...prev, ...newActivities]);
+  };
+
   return {
     activities,
     editingActivity,
@@ -54,5 +58,6 @@ export function useActivities() {
     updateActivity,
     deleteActivity,
     setEditingActivity,
+    importActivities,
   };
 }

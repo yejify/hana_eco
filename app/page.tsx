@@ -8,6 +8,7 @@ import EmissionChart from '@/components/dashboard/EmissionChart';
 import DataTable from '@/components/dashboard/DataTable';
 
 import { useActivities } from '@/hooks/useActivities';
+import ExcelImportButton from '@/components/dashboard/ExcelImportButton';
 
 export default function Home() {
   const {
@@ -17,6 +18,7 @@ export default function Home() {
     updateActivity,
     deleteActivity,
     setEditingActivity,
+    importActivities,
   } = useActivities();
 
   return (
@@ -25,6 +27,10 @@ export default function Home() {
         <PageHeader />
 
         <SummaryCards activities={activities} />
+
+        <div className='flex justify-end'>
+          <ExcelImportButton importActivities={importActivities} />
+        </div>
 
         <FilterSection
           addActivity={addActivity}
