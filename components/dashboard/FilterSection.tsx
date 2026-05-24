@@ -2,12 +2,17 @@
 
 import { useEffect, useState } from 'react';
 
-import { ActivityData, ActivityType } from '@/types/activity';
-import { calculateEmission } from '@/utils/calculateEmission';
+import {
+  ActivityData,
+  ActivityType,
+  CreateActivityRequest,
+} from '@/types/activity';
 
 type FilterSectionProps = {
-  addActivity: (activity: ActivityData) => void;
-  updateActivity: (activity: ActivityData) => void;
+  addActivity: (activity: CreateActivityRequest) => Promise<void>;
+
+  updateActivity: (activity: ActivityData) => Promise<void>;
+
   editingActivity: ActivityData | null;
 };
 
@@ -23,47 +28,84 @@ export default function FilterSection({
   updateActivity,
   editingActivity,
 }: FilterSectionProps) {
-  const [date, setDate] = useState('');
+  const [activityDate, setActivityDate] = useState('');
+
   const [productName, setProductName] = useState('');
+
   const [activityType, setActivityType] = useState<ActivityType>('electricity');
+
   const [amount, setAmount] = useState('');
 
+  /**
+   * 수정 데이터 세팅
+   */
   useEffect(() => {
     if (editingActivity) {
-      setDate(editingActivity.date || '');
+      setActivityDate(editingActivity.activityDate || '');
+
       setProductName(editingActivity.productName);
+
       setActivityType(editingActivity.activityType);
+
       setAmount(String(editingActivity.amount));
     }
   }, [editingActivity]);
 
-  const handleSubmit = () => {
-    if (!date || !productName || !amount) {
+  /**
+   * 제출 처리
+   */
+  const handleSubmit = async () => {
+    if (!activityDate || !productName || !amount) {
       alert('일자, 제품명, 활동량을 입력해주세요.');
+
       return;
     }
 
     const numericAmount = Number(amount);
 
-    const activityData: ActivityData = {
-      id: editingActivity ? editingActivity.id : Date.now(),
-      date,
-      productName,
-      activityType,
-      amount: numericAmount,
-      unit: UNIT_MAP[activityType],
-      emission: calculateEmission(activityType, numericAmount),
-    };
-
+    /**
+     * 수정
+     */
     if (editingActivity) {
-      updateActivity(activityData);
+      await updateActivity({
+        ...editingActivity,
+
+        activityDate,
+
+        productName,
+
+        activityType,
+
+        amount: numericAmount,
+
+        unit: UNIT_MAP[activityType],
+      });
     } else {
-      addActivity(activityData);
+      /**
+       * 생성
+       */
+      await addActivity({
+        activityDate,
+
+        productName,
+
+        activityType,
+
+        amount: numericAmount,
+
+        unit: UNIT_MAP[activityType],
+      });
     }
 
-    setDate('');
+    /**
+     * 입력 초기화
+     */
+    setActivityDate('');
+
     setProductName('');
+
     setAmount('');
+
     setActivityType('electricity');
   };
 
@@ -72,6 +114,7 @@ export default function FilterSection({
       <div className='mb-5 flex items-center justify-between'>
         <div>
           <h2 className='text-lg font-bold text-gray-800'>활동 데이터 입력</h2>
+
           <p className='mt-1 text-sm text-gray-500'>
             제품별 활동량을 입력해 탄소 배출량을 계산합니다.
           </p>
@@ -91,10 +134,11 @@ export default function FilterSection({
           <label className='mb-2 block text-sm font-medium text-gray-600'>
             일자
           </label>
+
           <input
             type='date'
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            value={activityDate}
+            onChange={(e) => setActivityDate(e.target.value)}
             className='w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500'
           />
         </div>
@@ -103,6 +147,7 @@ export default function FilterSection({
           <label className='mb-2 block text-sm font-medium text-gray-600'>
             제품명
           </label>
+
           <input
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
@@ -115,14 +160,18 @@ export default function FilterSection({
           <label className='mb-2 block text-sm font-medium text-gray-600'>
             활동 유형
           </label>
+
           <select
             value={activityType}
             onChange={(e) => setActivityType(e.target.value as ActivityType)}
             className='w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500'
           >
             <option value='electricity'>전력 사용량</option>
+
             <option value='material'>원재료 사용량</option>
+
             <option value='transport'>운송 거리</option>
+
             <option value='waste'>폐기물 발생량</option>
           </select>
         </div>
@@ -131,6 +180,7 @@ export default function FilterSection({
           <label className='mb-2 block text-sm font-medium text-gray-600'>
             활동량
           </label>
+
           <input
             type='number'
             value={amount}
@@ -144,6 +194,7 @@ export default function FilterSection({
           <label className='mb-2 block text-sm font-medium text-gray-600'>
             단위
           </label>
+
           <div className='flex h-10.5 items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500'>
             {UNIT_MAP[activityType]}
           </div>

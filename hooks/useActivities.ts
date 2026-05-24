@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { mockActivityData } from '@/data/mockActivityData';
-import { ActivityData } from '@/types/activity';
-const STORAGE_KEYS = {
-  ACTIVITIES: 'hana-eco-activities',
-};
+import { ActivityData, CreateActivityRequest } from '@/types/activity';
 
 export function useActivities() {
   const [activities, setActivities] = useState<ActivityData[]>([]);
@@ -14,41 +10,101 @@ export function useActivities() {
     null,
   );
 
-  useEffect(() => {
-    const savedActivities = localStorage.getItem(STORAGE_KEYS.ACTIVITIES);
+  const fetchActivities = async () => {
+    try {
+      const response = await fetch('/api/activities');
 
-    if (savedActivities) {
-      setActivities(JSON.parse(savedActivities));
-      return;
+      if (!response.ok) {
+        throw new Error('활동 목록 조회 실패');
+      }
+
+      const data = await response.json();
+
+      setActivities(data);
+    } catch (error) {
+      console.error(error);
     }
+  };
 
-    setActivities(mockActivityData);
+  useEffect(() => {
+    fetchActivities();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
-  }, [activities]);
+  const addActivity = async (activity: CreateActivityRequest) => {
+    try {
+      const response = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(activity),
+      });
 
-  const addActivity = (activity: ActivityData) => {
-    setActivities((prev) => [...prev, activity]);
+      if (!response.ok) {
+        throw new Error('활동 추가 실패');
+      }
+
+      await fetchActivities();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const updateActivity = (updatedActivity: ActivityData) => {
-    setActivities((prev) =>
-      prev.map((activity) =>
-        activity.id === updatedActivity.id ? updatedActivity : activity,
-      ),
-    );
+  const updateActivity = async (updatedActivity: ActivityData) => {
+    try {
+      const response = await fetch(`/api/activities/${updatedActivity.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedActivity),
+      });
 
-    setEditingActivity(null);
+      if (!response.ok) {
+        throw new Error('수정 실패');
+      }
+
+      await fetchActivities();
+
+      setEditingActivity(null);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const deleteActivity = async (id: string) => {
+    try {
+      const response = await fetch(`/api/activities/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('삭제 실패');
+      }
+
+      await fetchActivities();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const deleteActivity = (id: number) => {
-    setActivities((prev) => prev.filter((activity) => activity.id !== id));
-  };
+  const importActivities = async (newActivities: CreateActivityRequest[]) => {
+    try {
+      await Promise.all(
+        newActivities.map((activity) =>
+          fetch('/api/activities', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(activity),
+          }),
+        ),
+      );
 
-  const importActivities = (newActivities: ActivityData[]) => {
-    setActivities((prev) => [...prev, ...newActivities]);
+      await fetchActivities();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return {
