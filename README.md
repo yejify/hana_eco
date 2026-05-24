@@ -75,3 +75,12 @@ GitHub: `hana_eco Repository`
 ```ts
 emission = amount * emissionFactor;
 ```
+---
+
+## 실행 방법
+
+```bash
+yarn install
+yarn build
+yarn start
+```
