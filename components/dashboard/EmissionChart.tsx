@@ -1,3 +1,15 @@
+'use client';
+
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
 import { ActivityData, ActivityType } from '@/types/activity';
 
 type EmissionChartProps = {
@@ -15,7 +27,8 @@ export default function EmissionChart({ activities }: EmissionChartProps) {
   const chartData = Object.entries(
     activities.reduce<Record<ActivityType, number>>(
       (acc, cur) => {
-        acc[cur.activityType] = (acc[cur.activityType] || 0) + cur.emission;
+        acc[cur.activityType] += cur.emission;
+
         return acc;
       },
       {
@@ -25,37 +38,61 @@ export default function EmissionChart({ activities }: EmissionChartProps) {
         waste: 0,
       },
     ),
-  ).map(([key, value]) => ({
-    type: key as ActivityType,
-    label: ACTIVITY_LABELS[key as ActivityType],
-    value,
+  ).map(([type, value]) => ({
+    type,
+    label: ACTIVITY_LABELS[type as ActivityType],
+    emission: Number(value.toFixed(2)),
   }));
-
-  const maxValue = Math.max(...chartData.map((item) => item.value), 1);
 
   return (
     <section className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
       <div className='mb-6'>
         <h2 className='text-lg font-bold text-gray-800'>배출량 현황</h2>
+
         <p className='mt-1 text-sm text-gray-500'>
-          활동 유형별 탄소 배출 비중을 확인합니다.
+          활동 유형별 탄소 배출량을 시각화합니다.
         </p>
       </div>
 
-      <div className='flex h-64 items-end gap-6 border-b border-l border-gray-200 px-6 py-4'>
-        {chartData.map((item) => (
-          <div
-            key={item.label}
-            className='flex flex-1 flex-col items-center justify-end gap-3'
-          >
-            <div
-              className='w-full max-w-18 rounded-t-xl bg-blue-500'
-              style={{ height: `${(item.value / maxValue) * 180}px` }}
+      <div className='h-80 focus:outline-none'>
+        <ResponsiveContainer width='100%' height='100%'>
+          <BarChart data={chartData} style={{ outline: 'none' }}>
+            <CartesianGrid
+              strokeDasharray='3 3'
+              vertical={false}
+              stroke='#e5e7eb'
             />
 
-            <span className='text-sm text-gray-500'>{item.label}</span>
-          </div>
-        ))}
+            <XAxis
+              dataKey='label'
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: '#6b7280', fontSize: 12 }}
+            />
+
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: '#6b7280', fontSize: 12 }}
+            />
+
+            <Tooltip
+              cursor={{ fill: 'rgba(37, 99, 235, 0.08)' }}
+              contentStyle={{
+                borderRadius: '12px',
+                border: '1px solid #e5e7eb',
+                backgroundColor: '#ffffff',
+              }}
+            />
+
+            <Bar
+              dataKey='emission'
+              fill='#2563eb'
+              radius={[8, 8, 0, 0]}
+              isAnimationActive={false}
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </section>
   );
