@@ -42,15 +42,6 @@ export default function FilterSection({
 
     const numericAmount = Number(amount);
 
-    const newActivity: ActivityData = {
-      id: Date.now(),
-      productName,
-      activityType,
-      amount: numericAmount,
-      unit: UNIT_MAP[activityType],
-      emission: calculateEmission(activityType, numericAmount),
-    };
-
     const activityData: ActivityData = {
       id: editingActivity ? editingActivity.id : Date.now(),
       productName,
