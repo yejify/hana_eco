@@ -1,4 +1,3 @@
-import { mockActivityData } from '@/data/mockActivityData';
 import { ActivityData } from '@/types/activity';
 
 type DataTableProps = {
@@ -27,6 +26,7 @@ export default function DataTable({
         <table className='w-full border-collapse text-sm'>
           <thead className='bg-gray-50 text-gray-600'>
             <tr>
+              <th className='px-4 py-3 text-left font-semibold'>일자</th>
               <th className='px-4 py-3 text-left font-semibold'>제품명</th>
               <th className='px-4 py-3 text-left font-semibold'>활동 유형</th>
               <th className='px-4 py-3 text-right font-semibold'>활동량</th>
@@ -39,6 +39,7 @@ export default function DataTable({
           <tbody className='divide-y divide-gray-100'>
             {activities.map((item) => (
               <tr key={item.id} className='hover:bg-gray-50'>
+                <td className='px-4 py-4 text-gray-600'>{item.date || '-'}</td>
                 <td className='px-4 py-4 font-medium text-gray-800'>
                   {item.productName}
                 </td>
@@ -48,7 +49,7 @@ export default function DataTable({
                 </td>
                 <td className='px-4 py-4 text-gray-600'>{item.unit}</td>
                 <td className='px-4 py-4 text-right font-semibold text-blue-600'>
-                  {item.emission.toLocaleString()} kgCO₂eq
+                  {item.emission.toFixed(2)} kgCO₂eq
                 </td>
                 <td className='px-4 py-4 text-center'>
                   <button
@@ -58,6 +59,7 @@ export default function DataTable({
                   >
                     수정
                   </button>
+
                   <button
                     type='button'
                     onClick={() => deleteActivity(item.id)}

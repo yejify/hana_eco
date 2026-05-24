@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import { ActivityData, ActivityType } from '@/types/activity';
 import { calculateEmission } from '@/utils/calculateEmission';
-import { useEffect, useState } from 'react';
 
 type FilterSectionProps = {
   addActivity: (activity: ActivityData) => void;
@@ -22,12 +23,14 @@ export default function FilterSection({
   updateActivity,
   editingActivity,
 }: FilterSectionProps) {
+  const [date, setDate] = useState('');
   const [productName, setProductName] = useState('');
   const [activityType, setActivityType] = useState<ActivityType>('electricity');
   const [amount, setAmount] = useState('');
 
   useEffect(() => {
     if (editingActivity) {
+      setDate(editingActivity.date || '');
       setProductName(editingActivity.productName);
       setActivityType(editingActivity.activityType);
       setAmount(String(editingActivity.amount));
@@ -35,8 +38,8 @@ export default function FilterSection({
   }, [editingActivity]);
 
   const handleSubmit = () => {
-    if (!productName || !amount) {
-      alert('제품명과 활동량을 입력해주세요.');
+    if (!date || !productName || !amount) {
+      alert('일자, 제품명, 활동량을 입력해주세요.');
       return;
     }
 
@@ -44,6 +47,7 @@ export default function FilterSection({
 
     const activityData: ActivityData = {
       id: editingActivity ? editingActivity.id : Date.now(),
+      date,
       productName,
       activityType,
       amount: numericAmount,
@@ -57,6 +61,7 @@ export default function FilterSection({
       addActivity(activityData);
     }
 
+    setDate('');
     setProductName('');
     setAmount('');
     setActivityType('electricity');
@@ -73,6 +78,7 @@ export default function FilterSection({
         </div>
 
         <button
+          type='button'
           onClick={handleSubmit}
           className='rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700'
         >
@@ -80,7 +86,19 @@ export default function FilterSection({
         </button>
       </div>
 
-      <div className='grid grid-cols-4 gap-4'>
+      <div className='grid grid-cols-5 gap-4'>
+        <div>
+          <label className='mb-2 block text-sm font-medium text-gray-600'>
+            일자
+          </label>
+          <input
+            type='date'
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className='w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500'
+          />
+        </div>
+
         <div>
           <label className='mb-2 block text-sm font-medium text-gray-600'>
             제품명
