@@ -25,7 +25,7 @@ export async function DELETE(
       message: '삭제 완료',
     });
   } catch (error) {
-    console.error(error);
+    console.error('DELETE ERROR:', error);
 
     return NextResponse.json(
       {
@@ -67,7 +67,7 @@ export async function PUT(
 
     return NextResponse.json(updatedActivity);
   } catch (error) {
-    console.error(error);
+    console.error('PUT ERROR:', error);
 
     return NextResponse.json(
       {
