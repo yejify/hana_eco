@@ -32,7 +32,6 @@ export default function ExcelImportButton({
     });
 
     const sheetName = workbook.SheetNames[0];
-
     const worksheet = workbook.Sheets[sheetName];
 
     const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
@@ -41,26 +40,23 @@ export default function ExcelImportButton({
 
     const activities: ActivityData[] = rows
       .map((row, index) => {
+        const date = String(row['일자(원본)'] ?? '');
         const productName = String(row['설명'] ?? '');
-
         const rawActivityType = String(row['활동 유형'] ?? '');
-
         const amount = Number(row['량'] ?? 0);
-
         const unit = String(row['단위'] ?? '');
 
         const activityType = ACTIVITY_TYPE_MAP[rawActivityType];
 
         if (!activityType) {
           console.warn('지원하지 않는 활동 유형:', rawActivityType);
-
           invalidRows.push(`${index + 1}행 - ${rawActivityType}`);
-
           return null;
         }
 
         return {
           id: Date.now() + index,
+          date,
           productName,
           activityType,
           amount,
