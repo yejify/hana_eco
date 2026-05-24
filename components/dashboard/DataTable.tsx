@@ -2,7 +2,7 @@ import { ActivityData } from '@/types/activity';
 
 type DataTableProps = {
   activities: ActivityData[];
-  deleteActivity: (id: number) => void;
+  deleteActivity: (id: string) => void;
   setEditingActivity: (activity: ActivityData) => void;
 };
 
@@ -39,7 +39,9 @@ export default function DataTable({
           <tbody className='divide-y divide-gray-100'>
             {activities.map((item) => (
               <tr key={item.id} className='hover:bg-gray-50'>
-                <td className='px-4 py-4 text-gray-600'>{item.date || '-'}</td>
+                <td className='px-4 py-4 text-gray-600'>
+                  {item.activityDate || '-'}
+                </td>
                 <td className='px-4 py-4 font-medium text-gray-800'>
                   {item.productName}
                 </td>

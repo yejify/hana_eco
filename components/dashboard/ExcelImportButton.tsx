@@ -2,11 +2,10 @@
 
 import * as XLSX from 'xlsx';
 
-import { ActivityData, ActivityType } from '@/types/activity';
-import { calculateEmission } from '@/utils/calculateEmission';
+import { ActivityType, CreateActivityRequest } from '@/types/activity';
 
 type ExcelImportButtonProps = {
-  importActivities: (activities: ActivityData[]) => void;
+  importActivities: (activities: CreateActivityRequest[]) => Promise<void>;
 };
 
 /**
@@ -16,6 +15,7 @@ const ACTIVITY_TYPE_MAP: Record<string, ActivityType> = {
   전기: 'electricity',
   원소재: 'material',
   운송: 'transport',
+  폐기물: 'waste',
 };
 
 export default function ExcelImportButton({
@@ -64,9 +64,6 @@ export default function ExcelImportButton({
 
         /**
          * 시트를 2차원 배열 형태로 변환
-         *
-         * header:1
-         * → JSON 객체가 아닌 배열 형태 반환
          */
         const sheetData = XLSX.utils.sheet_to_json<(string | number)[]>(
           worksheet,
@@ -77,17 +74,13 @@ export default function ExcelImportButton({
         );
 
         /**
-         * 현재 시트에서
-         * "일자(원본)" 위치 찾기
+         * "일자(원본)" 위치 탐색
          */
         for (let rowIndex = 0; rowIndex < sheetData.length; rowIndex++) {
           const row = sheetData[rowIndex];
 
           if (!Array.isArray(row)) continue;
 
-          /**
-           * 헤더 컬럼 위치 탐색
-           */
           const columnIndex = row.findIndex(
             (cell) => String(cell).trim() === '일자(원본)',
           );
@@ -101,10 +94,6 @@ export default function ExcelImportButton({
             headerRowIndex = rowIndex;
 
             headerColumnIndex = columnIndex;
-
-            console.log('선택된 시트:', sheetName);
-
-            console.log('헤더 위치:', headerRowIndex, headerColumnIndex);
 
             break;
           }
@@ -125,6 +114,7 @@ export default function ExcelImportButton({
         headerColumnIndex === -1
       ) {
         alert('일자(원본) 헤더를 찾을 수 없습니다.');
+
         return;
       }
 
@@ -141,18 +131,12 @@ export default function ExcelImportButton({
       );
 
       /**
-       * 헤더 기준으로 필요한 5개 컬럼만 추출
-       *
-       * 현재 구조:
-       * [일자(원본), 활동 유형, 설명, 량, 단위]
+       * 필요한 컬럼만 추출
        */
       const extractedRows = sheetData
-        /**
-         * 헤더 아래 행부터 사용
-         */
         .slice(headerRowIndex + 1)
         .map((row) => ({
-          date: row[headerColumnIndex],
+          activityDate: row[headerColumnIndex],
 
           activityType: row[headerColumnIndex + 1],
 
@@ -163,23 +147,24 @@ export default function ExcelImportButton({
           unit: row[headerColumnIndex + 4],
         }))
         /**
-         * 날짜가 없는 행 제거
+         * 설명이 없는 행 제거
          */
-        .filter((row) => row.date);
+        .filter((row) => row.description);
 
-      console.log('추출 데이터:', extractedRows);
-
+      /**
+       * 지원하지 않는 활동 유형 목록
+       */
       const invalidRows: string[] = [];
 
       /**
-       * ActivityData 형태로 변환
+       * CreateActivityRequest 형태로 변환
        */
-      const activities: ActivityData[] = extractedRows
+      const activities: CreateActivityRequest[] = extractedRows
         .map((row, index) => {
           /**
-           * 날짜
+           * 활동 일자
            */
-          const date = String(row.date ?? '').split(' ')[0];
+          const activityDate = String(row.activityDate ?? '').split(' ')[0];
 
           /**
            * 설명
@@ -218,34 +203,26 @@ export default function ExcelImportButton({
           }
 
           return {
-            id: Date.now() + index,
-
-            date,
-
+            activityDate,
             productName,
-
             activityType,
-
             amount,
-
             unit,
-
-            /**
-             * 배출량 계산
-             */
-            emission: calculateEmission(activityType, amount),
           };
         })
         /**
          * null 제거
          */
-        .filter((activity): activity is ActivityData => activity !== null);
+        .filter(
+          (activity): activity is CreateActivityRequest => activity !== null,
+        );
 
       /**
        * 데이터가 없는 경우
        */
       if (activities.length === 0) {
         alert('가져올 수 있는 데이터가 없습니다.');
+
         return;
       }
 
@@ -259,9 +236,9 @@ export default function ExcelImportButton({
       }
 
       /**
-       * 상위 컴포넌트로 데이터 전달
+       * 서버 저장 요청
        */
-      importActivities(activities);
+      await importActivities(activities);
 
       alert(`${activities.length}개의 데이터를 가져왔습니다.`);
     } catch (error) {

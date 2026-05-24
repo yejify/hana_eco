@@ -21,13 +21,14 @@ export async function GET() {
 export async function POST(request: Request) {
   const body = await request.json();
 
-  const { productName, activityType, amount, unit } = body;
+  const { activityDate, productName, activityType, amount, unit } = body;
 
   const emission =
     amount * EMISSION_FACTORS[activityType as keyof typeof EMISSION_FACTORS];
 
   const activity = await prisma.activity.create({
     data: {
+      activityDate,
       productName,
       activityType,
       amount,

@@ -9,6 +9,7 @@ generator client {
 
 model Activity {
   id           String   @id @default(uuid())
+  activityDate String
   productName  String
   activityType String
   amount       Float
