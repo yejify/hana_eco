@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 탄소 배출 관리 대시보드 (Hana Eco Dashboard)
 
-## Getting Started
+제품별 탄소 발자국(Product Carbon Footprint, PCF)을 관리하고 시각화할 수 있는 웹 대시보드입니다.
 
-First, run the development server:
+사용자는 활동 데이터를 직접 입력하거나 Excel 파일을 업로드할 수 있으며, 이를 기반으로 탄소 배출량을 계산하고 차트 및 테이블 형태로 확인할 수 있습니다.
+
+---
+
+# Repository
+
+GitHub: `hana_eco Repository`
+
+---
+
+# 기술 스택
+
+## Frontend
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Recharts
+
+## Backend / Database
+
+- Next.js API Route
+- Prisma
+- SQLite
+
+## Library
+
+- xlsx
+
+---
+
+# 주요 기능
+
+## 1. 활동 데이터 등록
+
+사용자는 활동 데이터를 직접 입력할 수 있습니다.
+
+### 입력 항목
+
+- 날짜
+- 활동 유형
+- 설명
+- 활동량
+- 단위
+
+### 지원 활동 유형
+
+- electricity
+- material
+- transport
+- waste
+
+---
+
+## 2. 탄소 배출량 계산
+
+활동 유형별 배출계수를 기반으로 탄소 배출량을 계산합니다.
+
+### 배출계수
+
+| 활동 유형   | 배출계수 |
+| ----------- | -------- |
+| electricity | 0.5      |
+| material    | 0.3      |
+| transport   | 0.2      |
+| waste       | 0.4      |
+
+### 계산 방식
+
+```ts
+emission = amount * emissionFactor;
+```
+---
+
+## 실행 방법
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn install
+yarn build
+yarn start
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
